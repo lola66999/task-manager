@@ -8,11 +8,11 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { Task, Priority, Status } from "../types/tasks";
-import { initialTasks } from "../data/tasks";
+import { Task, Priority, Status, PriorityFilter } from "../types/tasks"
+import { initialTasks } from "../data/tasks"
 import Column from "./Column";
 import TaskForm from "./TaskForm";
-import { format } from "path";
+import Filters from "./Filters";
 
 const STORAGE_KEY = "tasks";
 
@@ -25,8 +25,9 @@ const columns: { id: Status; title: string }[] = [
 export default function Board() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [search, setSearch] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all");
 
- 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
@@ -60,15 +61,29 @@ export default function Board() {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const editTask = (id: string, title: string) => {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, title } : t)));
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over) return; // ustundan tashqariga tashlandi
+    if (!over) return;
 
     const newStatus = over.id as Status;
     setTasks((prev) =>
       prev.map((t) => (t.id === active.id ? { ...t, status: newStatus } : t))
     );
   };
+
+  // Ko'rinadigan vazifalar: asl `tasks` o'zgarmaydi, faqat filtrlanadi
+  const visibleTasks = tasks.filter((t) => {
+    const matchesSearch = t.title
+      .toLowerCase()
+      .includes(search.trim().toLowerCase());
+    const matchesPriority =
+      priorityFilter === "all" || t.priority === priorityFilter;
+    return matchesSearch && matchesPriority;
+  });
 
   if (!loaded) {
     return <p className="text-gray-500">Yuklanmoqda...</p>;
@@ -77,6 +92,12 @@ export default function Board() {
   return (
     <>
       <TaskForm onAdd={addTask} />
+      <Filters
+        search={search}
+        onSearchChange={setSearch}
+        priority={priorityFilter}
+        onPriorityChange={setPriorityFilter}
+      />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="grid gap-4 md:grid-cols-3">
           {columns.map((col) => (
@@ -84,8 +105,9 @@ export default function Board() {
               key={col.id}
               id={col.id}
               title={col.title}
-              tasks={tasks.filter((t) => t.status === col.id)}
+              tasks={visibleTasks.filter((t) => t.status === col.id)}
               onDelete={deleteTask}
+              onEdit={editTask}
             />
           ))}
         </div>

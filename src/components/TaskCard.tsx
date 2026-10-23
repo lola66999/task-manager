@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Task } from "../types/tasks";
 
@@ -12,15 +13,35 @@ const priorityColor = {
 interface Props {
   task: Task;
   onDelete: (id: string) => void;
+  onEdit: (id: string, title: string) => void;
 }
 
-export default function TaskCard({ task, onDelete }: Props) {
+export default function TaskCard({ task, onDelete, onEdit }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(task.title);
+
+  // tahrirlayotganda sudrash o'chiriladi
   const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({ id: task.id });
+    useDraggable({ id: task.id, disabled: isEditing });
 
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
     : undefined;
+
+  const save = () => {
+    const title = draft.trim();
+    if (title && title !== task.title) {
+      onEdit(task.id, title);
+    } else {
+      setDraft(task.title); // bo'sh yoki o'zgarmagan bo'lsa, eskisini qaytaramiz
+    }
+    setIsEditing(false);
+  };
+
+  const cancel = () => {
+    setDraft(task.title);
+    setIsEditing(false);
+  };
 
   return (
     <div
@@ -28,19 +49,45 @@ export default function TaskCard({ task, onDelete }: Props) {
       style={style}
       {...listeners}
       {...attributes}
-      className={`cursor-grab touch-none rounded-lg bg-white p-3 shadow-sm ${
-        isDragging ? "relative z-50 opacity-80 shadow-lg" : ""
-      }`}
+      className={`touch-none rounded-lg bg-white p-3 shadow-sm ${
+        isEditing ? "" : "cursor-grab"
+      } ${isDragging ? "relative z-50 opacity-80 shadow-lg" : ""}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="font-medium text-gray-800">{task.title}</p>
-        <button
-          onClick={() => onDelete(task.id)}
-          className="text-gray-400 hover:text-red-500"
-          aria-label="O'chirish"
-        >
-          ✕
-        </button>
+        {isEditing ? (
+          <input
+            autoFocus
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={save}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") save();
+              if (e.key === "Escape") cancel();
+            }}
+            className="w-full rounded border border-blue-400 px-2 py-1 text-gray-800 outline-none"
+          />
+        ) : (
+          <p className="font-medium text-gray-800">{task.title}</p>
+        )}
+
+        {!isEditing && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-gray-400 hover:text-blue-500"
+              aria-label="Tahrirlash"
+            >
+              ✎
+            </button>
+            <button
+              onClick={() => onDelete(task.id)}
+              className="text-gray-400 hover:text-red-500"
+              aria-label="O'chirish"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </div>
       <span
         className={`mt-2 inline-block rounded px-2 py-0.5 text-xs ${priorityColor[task.priority]}`}

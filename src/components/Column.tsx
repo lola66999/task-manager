@@ -9,9 +9,10 @@ interface Props {
   title: string;
   tasks: Task[];
   onDelete: (id: string) => void;
+  onEdit: (id: string, title: string) => void;
 }
 
-export default function Column({ id, title, tasks, onDelete }: Props) {
+export default function Column({ id, title, tasks, onDelete, onEdit }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -25,8 +26,18 @@ export default function Column({ id, title, tasks, onDelete }: Props) {
         {title} <span className="text-gray-400">({tasks.length})</span>
       </h2>
       <div className="flex flex-col gap-3">
+        {tasks.length === 0 && (
+          <p className="py-6 text-center text-sm text-gray-400">
+            Vazifa yo&apos;q
+          </p>
+        )}
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} onDelete={onDelete} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            onDelete={onDelete}
+            onEdit={onEdit}
+          />
         ))}
       </div>
     </div>

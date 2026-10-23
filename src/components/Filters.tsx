@@ -21,12 +21,12 @@ export default function Filters({
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder="🔍 Vazifa qidirish..."
-        className="min-w-[200px] flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-blue-500"
+        className="min-w-[200px] flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 outline-none focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
       />
       <select
         value={priority}
         onChange={(e) => onPriorityChange(e.target.value as PriorityFilter)}
-        className="rounded-lg border border-gray-300 bg-white px-3 py-2"
+        className="rounded-lg border border-gray-300 bg-white px-3 py-2  dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
       >
         <option value="all">Barcha priority</option>
         <option value="low">Low</option>

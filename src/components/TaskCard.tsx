@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Task } from "../types/tasks";
-
+  
 const priorityColor = {
-  low: "bg-green-100 text-green-700",
-  medium: "bg-yellow-100 text-yellow-700",
-  high: "bg-red-100 text-red-700",
+  low: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  medium:
+    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
+  high: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
 };
 
 interface Props {
@@ -20,7 +21,6 @@ export default function TaskCard({ task, onDelete, onEdit }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(task.title);
 
-  // tahrirlayotganda sudrash o'chiriladi
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: task.id, disabled: isEditing });
 
@@ -33,7 +33,7 @@ export default function TaskCard({ task, onDelete, onEdit }: Props) {
     if (title && title !== task.title) {
       onEdit(task.id, title);
     } else {
-      setDraft(task.title); // bo'sh yoki o'zgarmagan bo'lsa, eskisini qaytaramiz
+      setDraft(task.title);
     }
     setIsEditing(false);
   };
@@ -49,7 +49,7 @@ export default function TaskCard({ task, onDelete, onEdit }: Props) {
       style={style}
       {...listeners}
       {...attributes}
-      className={`touch-none rounded-lg bg-white p-3 shadow-sm ${
+      className={`touch-none rounded-lg bg-white p-3 shadow-sm dark:bg-gray-700 ${
         isEditing ? "" : "cursor-grab"
       } ${isDragging ? "relative z-50 opacity-80 shadow-lg" : ""}`}
     >
@@ -64,10 +64,12 @@ export default function TaskCard({ task, onDelete, onEdit }: Props) {
               if (e.key === "Enter") save();
               if (e.key === "Escape") cancel();
             }}
-            className="w-full rounded border border-blue-400 px-2 py-1 text-gray-800 outline-none"
+            className="w-full rounded border border-blue-400 px-2 py-1 text-gray-800 outline-none dark:bg-gray-800 dark:text-gray-100"
           />
         ) : (
-          <p className="font-medium text-gray-800">{task.title}</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {task.title}
+          </p>
         )}
 
         {!isEditing && (

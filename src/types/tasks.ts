@@ -8,3 +8,8 @@ export interface Task {
   status: Status;
   priority: Priority;
 }
+export interface Member {
+  id: string;
+  name: string;
+  color: string; 
+}
